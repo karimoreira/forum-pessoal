@@ -16,4 +16,4 @@ até o momento desenvolvi:
 - Criação e listagem de posts
 - Logout e exibição de usuário logado no topo da interface
 
-![em dev/testes](frontend\public\readme\testes.png)
+![em dev/testes](https://github.com/karimoreira/forum-pessoal/blob/master/frontend/public/readme/testes.png?raw=true)
