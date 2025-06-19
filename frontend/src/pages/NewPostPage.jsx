@@ -10,12 +10,15 @@ import {
   Typography,
   Alert,
   IconButton,
-  CardMedia
+  CardMedia,
+  Chip,
+  Stack
 } from '@mui/material';
 import {
   CreateOutlined as CreateOutlinedIcon,
   AddPhotoAlternate as AddPhotoAlternateIcon,
-  Clear as ClearIcon
+  Clear as ClearIcon,
+  Add as AddIcon
 } from '@mui/icons-material';
 import api from '../api';
 
@@ -24,11 +27,13 @@ function NewPostPage() {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    image: ''
+    image: null,
+    tags: []
   });
   const [imagePreview, setImagePreview] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [newTag, setNewTag] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -37,23 +42,41 @@ function NewPostPage() {
     });
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 8 * 1024 * 1024) { // 8MB
-        setError('A imagem deve ter no máximo 8MB');
+      if (file.size > 5 * 1024 * 1024) { // 5MB
+        setError('A imagem deve ter no máximo 5MB');
         return;
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setFormData(prev => ({
-          ...prev,
-          image: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result);
+          
+          // Criar objeto de imagem para obter dimensões
+          const img = new Image();
+          img.onload = () => {
+            setFormData(prev => ({
+              ...prev,
+              image: {
+                url: reader.result,
+                alt: file.name,
+                dimensions: {
+                  width: img.width,
+                  height: img.height
+                }
+              }
+            }));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        setError('Erro ao processar imagem. Tente novamente.');
+        console.error('Erro ao processar imagem:', err);
+      }
     }
   };
 
@@ -61,7 +84,25 @@ function NewPostPage() {
     setImagePreview('');
     setFormData(prev => ({
       ...prev,
-      image: ''
+      image: null
+    }));
+  };
+
+  const handleAddTag = (e) => {
+    e.preventDefault();
+    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag('');
+    }
+  };
+
+  const handleDeleteTag = (tagToDelete) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToDelete)
     }));
   };
 
@@ -77,8 +118,13 @@ function NewPostPage() {
         return;
       }
 
-      console.log('Enviando post com imagem:', formData.image ? 'Sim' : 'Não');
-      console.log('Tamanho da imagem:', formData.image?.length);
+      // Validações básicas
+      if (!formData.title.trim()) {
+        throw new Error('O título é obrigatório');
+      }
+      if (!formData.content.trim()) {
+        throw new Error('O conteúdo é obrigatório');
+      }
 
       await api.post('/api/posts', formData, {
         headers: { Authorization: `Bearer ${token}` }
@@ -86,8 +132,8 @@ function NewPostPage() {
       
       navigate('/');
     } catch (err) {
-      console.error('Erro detalhado:', err);
-      setError(err.response?.data?.message || 'Erro ao criar post. Tente novamente.');
+      console.error('Erro ao criar post:', err);
+      setError(err.response?.data?.error || err.message || 'Erro ao criar post. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -207,23 +253,47 @@ function NewPostPage() {
                 </Box>
               )}
 
-              <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-                <Button
-                  type="button"
-                  fullWidth
-                  variant="outlined"
-                  onClick={() => navigate('/')}
-                  disabled={loading}
-                >
-                  Cancelar
-                </Button>
+              <Box sx={{ mt: 3, mb: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Tags
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                  <TextField
+                    size="small"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    placeholder="Adicionar tag"
+                    disabled={loading}
+                  />
+                  <Button
+                    variant="outlined"
+                    onClick={handleAddTag}
+                    disabled={!newTag.trim() || loading}
+                    startIcon={<AddIcon />}
+                  >
+                    Adicionar
+                  </Button>
+                </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {formData.tags.map((tag, index) => (
+                    <Chip
+                      key={index}
+                      label={tag}
+                      onDelete={() => handleDeleteTag(tag)}
+                      disabled={loading}
+                    />
+                  ))}
+                </Stack>
+              </Box>
+
+              <Box sx={{ mt: 3 }}>
                 <Button
                   type="submit"
                   fullWidth
                   variant="contained"
                   disabled={loading}
                 >
-                  {loading ? 'Publicando...' : 'Publicar'}
+                  {loading ? 'Publicando...' : 'Publicar Post'}
                 </Button>
               </Box>
             </Box>

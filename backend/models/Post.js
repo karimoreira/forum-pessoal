@@ -7,10 +7,20 @@ const CommentSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 
+const ImageSchema = new mongoose.Schema({
+  url: { type: String },
+  alt: { type: String },
+  caption: { type: String },
+  dimensions: {
+    width: Number,
+    height: Number
+  }
+});
+
 const PostSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
-  image: { type: String },
+  image: ImageSchema,
   author: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -20,8 +30,24 @@ const PostSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  tags: [{ type: String }],
   likes: { type: Number, default: 0 },
-  comments: [CommentSchema]
+  comments: [CommentSchema],
+  status: {
+    type: String,
+    enum: ['rascunho', 'publicado'],
+    default: 'publicado'
+  }
+});
+
+// Middleware para atualizar updatedAt
+PostSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 module.exports = mongoose.model('Post', PostSchema);

@@ -1,21 +1,80 @@
-# fórum pessoal
+# Fórum Blog Pessoal
 
-aplicação web fullstack desenvolvida para registrar e compartilhar meus estudos de programação.
-com o frontend em react.js, backend com express e mongoDB e autenticação via JWT.
+Aplicação web fullstack desenvolvida para registrar e compartilhar estudos de programação.
+Frontend em React.js, backend com Express e MongoDB, e autenticação via JWT.
 
-tecnologias:
+## Tecnologias
 
-front - React.js, React Router, Axios
-back-end: Node.js, Express, Mongoose, JWT, bcrypt, cluster mongoDB atlas
+### Frontend
+- React.js
+- Material-UI
+- React Router
+- Axios
 
-até o momento desenvolvi:
+### Backend
+- Node.js
+- Express
+- Mongoose
+- JWT
+- bcrypt
+- MongoDB Atlas
 
-- Cadastro de usuários
+## Funcionalidades
+
+### Implementadas
+- Cadastro e autenticação de usuários
 - Login com geração de token JWT
-- Proteção de rotas (ex: criação de posts)
-- Criação e listagem de posts
-- Logout e exibição de usuário logado no topo da interface
+- Proteção de rotas
+- CRUD completo de posts
+- Upload e exibição de imagens (até 5MB)
+- Sistema de tags para categorização
+- Formatação de datas no padrão brasileiro
+- Compressão de respostas para melhor performance
+- Interface responsiva e moderna
+- Logout e exibição de usuário logado
 
-darei continuidade ao front-end para estilização
+### Em Desenvolvimento
+- Comentários em posts
+- Sistema de curtidas
+- Filtro por tags
+- Edição de perfil de usuário
+- Modo escuro/claro
 
-![em dev/testes](https://github.com/karimoreira/forum-pessoal/blob/master/frontend/public/readme/testes.png?raw=true)
+## Screenshots
+
+![Tela de desenvolvimento](frontend/public/readme/testes.png)
+
+## Como Executar
+
+### Backend
+1. Instale as dependências:
+```bash
+cd backend
+npm install
+```
+
+2. Configure as variáveis de ambiente em um arquivo `.env`:
+```
+MONGO_URI=sua_uri_do_mongodb
+JWT_SECRET=seu_segredo_jwt
+PORT=5000
+```
+
+3. Inicie o servidor:
+```bash
+npm run dev
+```
+
+### Frontend
+1. Instale as dependências:
+```bash
+cd frontend
+npm install
+```
+
+2. Inicie a aplicação:
+```bash
+npm start
+```
+
+A aplicação estará disponível em `http://localhost:3000`

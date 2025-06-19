@@ -40,14 +40,28 @@ function PostPage() {
   }, [id]);
 
   const formatDate = (dateString) => {
-    const options = { 
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString('pt-BR', options);
+    try {
+      const date = new Date(dateString);
+      
+      // Verifica se a data é válida
+      if (isNaN(date.getTime())) {
+        throw new Error('Data inválida');
+      }
+
+      const options = { 
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'America/Sao_Paulo'
+      };
+
+      return new Intl.DateTimeFormat('pt-BR', options).format(date);
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return 'Data indisponível';
+    }
   };
 
   if (loading) {
@@ -126,7 +140,8 @@ function PostPage() {
               alignItems: 'center', 
               gap: 2, 
               mb: 3,
-              color: 'text.secondary'
+              color: 'text.secondary',
+              flexWrap: 'wrap'
             }}>
               {post.author && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -139,7 +154,10 @@ function PostPage() {
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <AccessTimeIcon fontSize="small" />
-                <Typography variant="body2">
+                <Typography 
+                  variant="body2" 
+                  title={post.createdAt}
+                >
                   {formatDate(post.createdAt)}
                 </Typography>
               </Box>
