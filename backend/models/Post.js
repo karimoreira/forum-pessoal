@@ -8,10 +8,18 @@ const CommentSchema = new mongoose.Schema({
 });
 
 const PostSchema = new mongoose.Schema({
-  title: String,
-  content: String,
-  image: String, // Base64 ou URL
-  date: { type: Date, default: Date.now },
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  image: { type: String },
+  author: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  createdAt: { 
+    type: Date,
+    default: Date.now
+  },
   likes: { type: Number, default: 0 },
   comments: [CommentSchema]
 });
